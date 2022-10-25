@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Save Progress",
+  "version": "1.0",
+  "description": "Save the progress of your current OTT series irrespective of the number of people using the account",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "js": ["scripts/content.js"],
+      "matches": [
+        "https://www.hotstar.com/in/*"
+      ]
+    }
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": [
+    "http://*/*",
+    "https://*/*",
+    "https://www.hotstar.com/in/*",
+    "tabs",
+    "storage",
+    "local"
+  ]
+}
