@@ -86,6 +86,7 @@ async function handleHotStarTitle(currentTab) {
 			}
 		);
 	}
+	
 	if (isSeasonTab(currentTab.url)) {
 		console.log(currentTab.url);
 		const currSeason = getCurrentSeasonFromUrl(currentTab.url);

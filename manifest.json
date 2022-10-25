@@ -3,9 +3,6 @@
   "name": "Save Progress",
   "version": "1.0",
   "description": "Save the progress of your current OTT series irrespective of the number of people using the account",
-  "action": {
-    "default_popup": "popup.html"
-  },
   "content_scripts": [
     {
       "js": ["scripts/content.js"],
