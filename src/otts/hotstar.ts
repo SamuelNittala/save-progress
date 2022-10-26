@@ -3,6 +3,7 @@ export const EMPTY = "";
 export const HYPHEN = "-";
 export const EPISODE = "episode";
 export const SEASON = "season";
+export const SLASH = '/';
 
 const SET_SEASON = "SET_SEASON";
 const SET_EPISODE = "SET_EPISODE";
@@ -25,18 +26,33 @@ export class HotstarTitle {
 			return string;
 		}
 	}
+
 	async eval() {
 		if (this.isHomeTab(this.url) || this.isEpisodeTab(this.url)) {
 			const currentStoredProgress = await this.currentStoredValue(
 				this.getSeriesName(this.url)
 			);
 			if (currentStoredProgress) {
-				const { season } = this.getSeasonAndEpisode(currentStoredProgress.key);
+				const { season, episode } = this.getSeasonAndEpisode(currentStoredProgress.key);
+				let payload = {};
+				if (this.isEpisodeTab(this.url)) {
+					payload = {
+						action: SET_SEASON,
+						season
+					}
+				} else {
+					payload = {
+						action: SET_SEASON,
+						season,
+						episode,
+						url: currentStoredProgress.url,
+					}
+				}
 				chrome.tabs.query(
 					{ active: true, currentWindow: true },
 					function(tabs) {
 						if (tabs[0].id) {
-							chrome.tabs.sendMessage(tabs[0].id, { action: SET_SEASON, season });
+							chrome.tabs.sendMessage(tabs[0].id, payload);
 						}
 					}
 				);
