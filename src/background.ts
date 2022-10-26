@@ -1,4 +1,4 @@
-import { handleHotStarTitle } from "./otts/hotstar.js";
+import { HotstarTitle } from "./otts/hotstar.js";
 const EMPTY = "";
 const HOTSTAR = "HOTSTAR";
 
@@ -9,12 +9,15 @@ function getOtt(url: chrome.tabs.Tab["url"]) {
 	return EMPTY;
 }
 
-async function handleOTT(currentTab: chrome.tabs.Tab) {
-	switch (getOtt(currentTab.url)) {
-		case HOTSTAR: {
-			await handleHotStarTitle(currentTab);
+async function handleOTT({url , title}: chrome.tabs.Tab) {
+	if (url && title) {
+		switch (getOtt(url)) {
+			case HOTSTAR: {
+				const hotStarTitle = new HotstarTitle(url, title);
+				await hotStarTitle.eval();
+			}
+			default:
 		}
-		default:
 	}
 }
 
