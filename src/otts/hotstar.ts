@@ -1,8 +1,8 @@
 export const SPACE = " ";
 export const EMPTY = "";
 export const HYPHEN = "-";
-const EPISODE = "episode";
-const SEASON = "season";
+export const EPISODE = "episode";
+export const SEASON = "season";
 
 const SET_SEASON = "SET_SEASON";
 const SET_EPISODE = "SET_EPISODE";
@@ -17,19 +17,21 @@ export class HotstarTitle {
 	};
 
 	async eval() {
-		if (this.isHomeTab(this.url)) {
+		if (this.isHomeTab(this.url) || this.isEpisodeTab(this.url)) {
 			const currentStoredProgress = await this.currentStoredValue(
 				this.getSeriesName(this.url)
 			);
-			const { season } = this.getSeasonAndEpisode(currentStoredProgress.key);
-			chrome.tabs.query(
-				{ active: true, lastFocusedWindow: true },
-				function(tabs) {
-					if (tabs[0].id) {
-						chrome.tabs.sendMessage(tabs[0].id, { action: SET_SEASON, season });
+			if (currentStoredProgress) {
+				const { season } = this.getSeasonAndEpisode(currentStoredProgress.key);
+				chrome.tabs.query(
+					{ active: true, currentWindow: true },
+					function(tabs) {
+						if (tabs[0].id) {
+							chrome.tabs.sendMessage(tabs[0].id, { action: SET_SEASON, season });
+						}
 					}
-				}
-			);
+				);
+			}
 		}
 		if (this.isSeasonTab(this.url)) {
 			const currSeason = this.getCurrentSeasonFromUrl(this.url);
@@ -49,8 +51,8 @@ export class HotstarTitle {
 				});
 			}
 		}
-		if (this.isTitleValid(this.title)) {
-			const currentEpisodeSeason = this.convertToSEKey(this.formatString(this.title || ''));
+		if (this.isEpisodeTab(this.url)) {
+			const currentEpisodeSeason = this.convertToSEKey(this.formatString(this.title));
 			const seriesName = this.getSeriesName(this.url);
 			const objectToStore = {
 				[seriesName]: {
@@ -66,15 +68,6 @@ export class HotstarTitle {
 
 	formatString(string: string) {
 		return string.replaceAll(SPACE, EMPTY).toLowerCase();
-	}
-
-	isTitleValid(title: string) {
-		const formattedTitle = this.formatString(title);
-		return (
-			formattedTitle.search(EPISODE) !== -1 &&
-			formattedTitle.search("episodes") === -1 &&
-			formattedTitle.search(SEASON) !== -1
-		);
 	}
 
 	getSeriesName(url: string) {
@@ -135,5 +128,10 @@ export class HotstarTitle {
 	isHomeTab(url: string) {
 		const urlToArray = url.split("/");
 		return urlToArray.length === 7 && Number(urlToArray[6]);
+	}
+
+	isEpisodeTab(url: string) {
+		const urlToArray = url.split("/");
+		return urlToArray.length === 9 && Number(urlToArray[8]);
 	}
 }
