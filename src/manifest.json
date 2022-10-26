@@ -16,9 +16,6 @@
     "type": "module"
   },
   "permissions": [
-    "http://*/*",
-    "https://*/*",
-    "https://www.hotstar.com/in/*",
     "tabs",
     "storage",
     "local"
