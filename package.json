@@ -2,8 +2,9 @@
   "name": "save-progress",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -11,5 +12,8 @@
   "license": "ISC",
   "dependencies": {
     "chrome-types": "^0.1.141"
+  },
+  "devDependencies": {
+    "typescript": "^4.8.4"
   }
 }

@@ -6,7 +6,9 @@ const HYPHEN = "-";
 const EPISODE = "episode";
 const SEASON = "season";
 
-async function handleHotStarTitle(currentTab) {
+const HOTSTAR = "HOTSTAR";
+
+export async function handleHotStarTitle(currentTab) {
 	function formatString(string) {
 		return string.replaceAll(SPACE, EMPTY).toLowerCase();
 	}
@@ -23,6 +25,7 @@ async function handleHotStarTitle(currentTab) {
 	function getSeriesName(url) {
 		return url.split("/")[5].replace("-", "_");
 	}
+
 	function getNumbersFromTitle(key, formattedTitle) {
 		return formattedTitle
 			.slice(formattedTitle.search(key) + key.length)
@@ -74,6 +77,7 @@ async function handleHotStarTitle(currentTab) {
 	}
 
 	if (isHomeTab(currentTab.url)) {
+		console.log("HOME TABS");
 		const currentStoredProgress = await currentStoredValue(
 			getSeriesName(currentTab.url)
 		);
@@ -81,29 +85,33 @@ async function handleHotStarTitle(currentTab) {
 		chrome.tabs.query(
 			{ active: true, lastFocusedWindow: true },
 			function (tabs) {
-				console.log(tabs);
-				chrome.tabs.sendMessage(tabs[0].id, { action: "SET_SEASON", season });
+				if (tabs[0]) {
+					console.log("home tab", tabs[0]);
+					tabs[0].id && chrome.tabs.sendMessage(tabs[0].id, { action: "SET_SEASON", season });
+				}
 			}
 		);
 	}
-	
+
 	if (isSeasonTab(currentTab.url)) {
-		console.log(currentTab.url);
 		const currSeason = getCurrentSeasonFromUrl(currentTab.url);
 		const currentStoredProgress = await currentStoredValue(
 			getSeriesName(currentTab.url)
 		);
-		console.log(currentStoredProgress);
 		const { season, episode } = getSeasonAndEpisode(currentStoredProgress.key);
 
 		if (season === currSeason) {
-			console.log("hit");
 			chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-				chrome.tabs.sendMessage(tabs[0].id, { action: "SET_EPISODE", episode });
+				if (tabs[0]) {
+					tabs[0].id &&
+					chrome.tabs.sendMessage(tabs[0].id, {
+						action: "SET_EPISODE",
+						episode,
+					});
+				}
 			});
 		}
 
-		console.log(currSeason, currentStoredProgress, "llb");
 	}
 	if (isTitleValid(currentTab.title)) {
 		const currentEpisodeSeason = convertToSEKey(formatString(currentTab.title));
@@ -114,28 +122,33 @@ async function handleHotStarTitle(currentTab) {
 				url: currentTab.url,
 			},
 		};
-		console.log(objectToStore, "obs");
 		chrome.storage.local.set(objectToStore, () => {
 			console.log(`set ${seriesName} to ${currentEpisodeSeason}`);
 		});
 	}
 }
 
-function getOtt(url) {
-	return url.split(".")[1].toUpperCase();
+function getOtt(url: chrome.tabs.Tab["url"]) {
+	if (url) {
+		return url.split(".")[1].toUpperCase();
+	}
+	return EMPTY;
 }
 
-async function handleOTT(currentTab) {
+async function handleOTT(currentTab: chrome.tabs.Tab) {
 	switch (getOtt(currentTab.url)) {
-		case "HOTSTAR": {
-			console.log(currentTab.url, "url");
+		case HOTSTAR: {
 			await handleHotStarTitle(currentTab);
 		}
 		default:
 	}
 }
 
-chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-	// read changeInfo data and do something with it (like read the url)
-	handleOTT(tab);
-});
+try {
+	chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+		// read changeInfo data and do something with it (like read the url)
+		handleOTT(tab);
+	});
+} catch (err) {
+	console.log(err);
+}

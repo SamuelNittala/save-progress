@@ -1,6 +1,6 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	if (request.action === "SET_EPISODE") {
-		console.log("message received to set episode", request.episode);
+		console.log("message received to set episodes", request.episode);
 
 		//FIND A BETTER WAY
 		setTimeout(() => {
