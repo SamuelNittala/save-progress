@@ -12,10 +12,19 @@ export class HotstarTitle {
 	title = '';
 
 	constructor(url : string, title : string) {
-		this.url = url;
+		const trimEndingSlash = this.trimEndingChar(SLASH);
+		this.url = trimEndingSlash(url);
 		this.title = title;
 	};
 
+	trimEndingChar(char : string) {
+		return function (string: string) {
+			if (string.split(EMPTY)[string.length - 1] === char) {
+				return string.slice(0, string.length - 1);
+			}
+			return string;
+		}
+	}
 	async eval() {
 		if (this.isHomeTab(this.url) || this.isEpisodeTab(this.url)) {
 			const currentStoredProgress = await this.currentStoredValue(
