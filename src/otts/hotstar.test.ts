@@ -20,13 +20,6 @@ describe("url tests", () => {
   it('should be episode tab when the last url value is a number', () => {
     expect(hotStarTitle.isEpisodeTab(url)).toBeTruthy();
   })
-  it('should remove ending slash from the url', () => {
-    const slashedUrl = `${url}/`;
-    expect(hotStarTitle.trimEndingChar('/')(slashedUrl)).toBe(url);
-  })
-  it('url with no slash at the end should stay the same when trimmed', () => {
-    expect(hotStarTitle.trimEndingChar('/')(url)).toBe(url);
-  })
 })
 
 describe("title tests", () => {
